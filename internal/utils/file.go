@@ -50,7 +50,7 @@ func FileUrlByID(fileID string) (string, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Warn("Ошибка при закрытии Body: %v", err)
+			log.Warnf("Ошибка при закрытии Body: %v", err)
 		}
 	}(resp.Body)
 
