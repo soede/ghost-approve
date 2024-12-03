@@ -3,7 +3,7 @@ package notifier
 import (
 	"ghost-approve/internal/models"
 	"ghost-approve/internal/repositories"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -13,7 +13,7 @@ func CheckTasks(taskCheckChan chan<- *models.Task) {
 
 		tasks, err := repositories.CurrentTasks()
 		if err != nil {
-			log.Printf("Error checking Redis tasks: %v", err)
+			log.Errorf("Error checking Redis tasks: %v", err)
 			continue
 		}
 

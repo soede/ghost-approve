@@ -6,7 +6,7 @@ import (
 	"ghost-approve/pkg/botErrors"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 )
@@ -16,7 +16,7 @@ func handleRejectCallback(p *botgolang.EventPayload, data string) {
 	approveIDStr := strings.TrimPrefix(data, "/reject_")
 	approveID, err := strconv.Atoi(approveIDStr)
 	if err != nil {
-		log.Printf("Ошибка преобразования ID: %s в int: %v", approveIDStr, err)
+		log.Errorf("Ошибка преобразования ID: %s в int: %v", approveIDStr, err)
 	}
 
 	err = services.RejectApprove(approveID, p.From.ID)
@@ -32,6 +32,6 @@ func handleRejectCallback(p *botgolang.EventPayload, data string) {
 	}
 
 	if err != nil {
-		log.Printf("Ошибка подтверждения: %v", err)
+		log.Errorf("Ошибка подтверждения: %v", err)
 	}
 }

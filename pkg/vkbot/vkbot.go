@@ -3,7 +3,7 @@ package vkbot
 import (
 	"github.com/joho/godotenv"
 	botgolang "github.com/mail-ru-im/bot-golang"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 )
 

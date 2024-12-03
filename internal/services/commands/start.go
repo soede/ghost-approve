@@ -4,7 +4,7 @@ import (
 	"ghost-approve/internal/repositories"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 func Start(a *botgolang.EventPayload) {
@@ -22,7 +22,7 @@ func Start(a *botgolang.EventPayload) {
 		text += "Привет! Меня зовут Споки. Мы еще не знакомы, но тебе уже отправили несколько апрувов, отправь мне /check чтобы их проверить\n"
 		err := repositories.ActivateUser(user, a.From.FirstName, a.From.LastName)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 	}
 
@@ -35,6 +35,6 @@ func Start(a *botgolang.EventPayload) {
 
 	message := vkbot.GetBot().NewTextMessage(userID, text)
 	if err := message.Send(); err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 }

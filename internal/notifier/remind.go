@@ -7,7 +7,7 @@ import (
 	"ghost-approve/internal/utils"
 	"ghost-approve/pkg/botErrors"
 	rdb "ghost-approve/pkg/db/redis"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
 )
@@ -75,7 +75,7 @@ func SendRemindMessage(task *models.Task) error {
 		return nil
 	}
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	targetTime := approval.CreatedAt.Add(time.Duration(approval.ConfirmTime) * time.Hour)
@@ -88,14 +88,14 @@ func SendRemindMessage(task *models.Task) error {
 
 	for _, el := range notReactedUsers {
 		if err := bot.NewTextMessage(el, text).Send(); err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 	}
 
 	if len(notRegistered) != 0 {
 		text = fmt.Sprintf("Некоторые участники апрува #%d все еще не написали мне: %s. Напомни им написать мне, тогда я смогу отправить им твой апрув", approvalID, strings.Join(notRegistered, ", "))
 		if err := bot.NewTextMessage(authorID, text).Send(); err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 	}
 

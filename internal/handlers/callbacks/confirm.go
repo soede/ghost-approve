@@ -9,26 +9,28 @@ import (
 	"ghost-approve/pkg/botErrors"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"log"
 )
 
 // handleConfirmCallback обрабатывает confirm_* команды
 func handleConfirmCallback(p *botgolang.EventPayload, data string) {
 	approveID, v, err := utils.ParseFileInfo(data)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return
 	}
 
 	if err != nil {
-		log.Printf("Ошибка преобразования ID: %s в int: %v", approveID, err)
+		log.Error("Ошибка преобразования ID: %s в int: %v", approveID, err)
 	}
 
 	err = services.ConfirmApprove(approveID, v, p.From.ID)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = vkbot.GetBot().NewTextMessage(p.From.ID, "Апрув не был найден").Send()
-		log.Println(err)
+		if err != nil {
+		}
+		log.Error(err)
 	}
 	if errors.Is(err, botErrors.ErrAlreadyHasResponse) {
 		err = vkbot.GetBot().NewTextMessage(p.From.ID, "Ты уже дал отклик по этому апруву").Send()
@@ -36,11 +38,11 @@ func handleConfirmCallback(p *botgolang.EventPayload, data string) {
 
 	if errors.Is(err, botErrors.ErrNoAccess) {
 		err = vkbot.GetBot().NewTextMessage(p.From.ID, "Нет доступа к апруву").Send()
-		log.Println(err)
+		log.Error(err)
 	}
 
 	if err != nil {
-		log.Printf("Ошибка подтверждения: %v", err)
+		log.Error("Ошибка подтверждения: %v", err)
 	}
 
 }
@@ -57,7 +59,7 @@ func CheckAndConfirm(p *botgolang.EventPayload, fileInfo *services.FileInfo) {
 	if !ok {
 		message := vkbot.GetBot().NewTextMessage(p.From.ID, "Ты отправил сообшение в котором нет файла, давай попробуем заново")
 		if err := message.Send(); err != nil {
-			log.Printf("failed to send message: %s", err)
+			log.Errorf("failed to send message: %s", err)
 		}
 		return
 	}
@@ -66,7 +68,7 @@ func CheckAndConfirm(p *botgolang.EventPayload, fileInfo *services.FileInfo) {
 	file, err := repositories.FileByApprovalID(fileInfo.ApproveID)
 
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	err = services.UploadFileWithLock(fileInfo.ApproveID, fileInfo.Version+1, p.From.ID, fileID)
@@ -74,7 +76,7 @@ func CheckAndConfirm(p *botgolang.EventPayload, fileInfo *services.FileInfo) {
 	if errors.Is(err, botErrors.FileLockedError) {
 		file, err = repositories.FileByApprovalID(fileInfo.ApproveID)
 		if err != nil {
-			log.Println("ошибка при загрузке")
+			log.Errorf("ошибка при обновлении файла: %s", err)
 		}
 		message := vkbot.GetBot().NewMessage(p.From.ID)
 		message.Text = "Ты отправил не актуальную версию файла. Попробуй  скачать последнюю версию файла, изменить по своему усмотрению и отправить мне его. \n" +
@@ -89,16 +91,18 @@ func CheckAndConfirm(p *botgolang.EventPayload, fileInfo *services.FileInfo) {
 		keyboard.AddRow(not)
 		message.AttachInlineKeyboard(keyboard)
 		if err := message.Send(); err != nil {
-			log.Printf("failed to send message: %s", err)
+			log.Errorf("failed to send message: %s", err)
 		}
 		return
 	}
 	if errors.Is(err, botErrors.ErrNoAccess) {
-		vkbot.GetBot().NewTextMessage(p.From.ID, "Нет доступа к апруву").Send()
+		err = vkbot.GetBot().NewTextMessage(p.From.ID, "Нет доступа к апруву").Send()
+		log.Error(err)
 		return
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		vkbot.GetBot().NewTextMessage(p.From.ID, "Апрув не был найден").Send()
+		err = vkbot.GetBot().NewTextMessage(p.From.ID, "Апрув не был найден").Send()
+		log.Error(err)
 		return
 	}
 	if errors.Is(err, botErrors.ErrAlreadyHasResponse) {
@@ -106,7 +110,7 @@ func CheckAndConfirm(p *botgolang.EventPayload, fileInfo *services.FileInfo) {
 		return
 	}
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	err = vkbot.GetBot().NewTextMessage(p.From.ID, fmt.Sprintf("Апрув #%d был успешно подтвержден!", fileInfo.ApproveID)).Send()

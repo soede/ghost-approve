@@ -7,8 +7,8 @@ import (
 	"ghost-approve/pkg/db/postgres"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -66,6 +66,6 @@ func SendFileOrCancel(userID, text string) {
 	message.AttachInlineKeyboard(keyboard)
 	err := message.Send()
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 }

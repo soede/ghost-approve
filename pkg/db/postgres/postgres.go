@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"ghost-approve/internal/models"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 	"os"
 )
 
@@ -41,4 +41,3 @@ func InitDB() error {
 func GetDB() *gorm.DB {
 	return db
 }
-

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"ghost-approve/pkg/botErrors"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -135,7 +134,6 @@ func ExtractEmails(inputStr string) EmailExtractResult {
 			validEmails = append(validEmails, cleanedEmail)
 		} else {
 			invalidEmails = append(invalidEmails, email)
-			log.Println("нет " + cleanedEmail)
 		}
 	}
 	allValid = len(invalidEmails) == 0

@@ -10,8 +10,8 @@ import (
 	"ghost-approve/pkg/db/postgres"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"log"
 	"sort"
 	"strings"
 	"time"
@@ -26,8 +26,8 @@ func ReportsApprovalsByUserID(authorID string) ([]*botgolang.Message, error) {
 		return messages, nil
 	}
 	if err != nil {
+		log.Error(err)
 		return nil, err
-		log.Println(err)
 	}
 
 	for _, approval := range *approvals {
@@ -133,12 +133,12 @@ func FetchEvents(approveID int) (string, error) {
 	if file != nil && err == nil {
 		fileURL, err = utils.FileUrlByID(file.OriginalFileID)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 	}
 
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	var events []EventElement
 
@@ -146,7 +146,7 @@ func FetchEvents(approveID int) (string, error) {
 		return "", errors.New("Апрув не найден")
 	}
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	if approval.Editable && file != nil {
 		events = append(events, EventElement{
@@ -167,13 +167,13 @@ func FetchEvents(approveID int) (string, error) {
 	if approval.Editable {
 		approved, err := repositories.GetFileHistoriesByID(approveID)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 
 		for _, el := range *approved {
 			url, err := utils.FileUrlByID(el.FileID)
 			if err != nil {
-				log.Println(err)
+				log.Error(err)
 			}
 
 			events = append(events, EventElement{
@@ -185,7 +185,7 @@ func FetchEvents(approveID int) (string, error) {
 	if !approval.Editable {
 		approved, err := repositories.ApprovedUsers(approveID)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 
 		for _, el := range *approved {
@@ -334,8 +334,7 @@ func CheckApprovalAccess(approvalID int, userID string) (bool, error) {
 // Собирает текст для отчета
 func ReportApprovalText(approve *models.Approval) string {
 	var exampleText string
-	exampleText += fmt.Sprintf("Апрув #%d", approve.ID)
-	exampleText += fmt.Sprintf("\n%s", approve.Title)
+	exampleText += fmt.Sprintf("%s", approve.Title)
 
 	if len(approve.Description) != 0 {
 		exampleText += "\nОписание: " + approve.Description
@@ -359,10 +358,6 @@ func ReportApprovalText(approve *models.Approval) string {
 	}
 	if timeRemaining < 0 || approve.Status != models.StatusPending {
 		exampleText += fmt.Sprintf("\nСтатус: %s", approve.Status)
-	}
-
-	if len(approve.Links) != 0 {
-		exampleText += "\nПрикрепил ссылки из апрува к сообщению"
 	}
 
 	if approve.Cancelable {

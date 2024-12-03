@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"io"
-	"log"
 	"net/http"
 	"os"
 )
@@ -50,7 +50,7 @@ func FileUrlByID(fileID string) (string, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("Ошибка при закрытии Body: %v", err)
+			log.Warn("Ошибка при закрытии Body: %v", err)
 		}
 	}(resp.Body)
 
@@ -60,7 +60,7 @@ func FileUrlByID(fileID string) (string, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Ошибка чтения тела: %v\n", err)
+		log.Warnf("Ошибка чтения тела: %v\n", err)
 		return "", err
 	}
 

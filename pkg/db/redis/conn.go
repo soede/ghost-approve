@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 )
@@ -43,6 +43,6 @@ func InitRedis(ctx context.Context) *Store {
 	}
 	rdb = &Store{client, ctx}
 
-	log.Println("Connected to Redis successfully")
+	log.Infof("Connected to Redis successfully")
 	return rdb
 }

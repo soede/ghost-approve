@@ -4,10 +4,10 @@ import (
 	"ghost-approve/internal/handlers/callbacks"
 	"ghost-approve/internal/repositories"
 	"ghost-approve/internal/services"
-	commands "ghost-approve/internal/services/commands"
+	"ghost-approve/internal/services/commands"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 )
@@ -33,7 +33,7 @@ func MessageHandler(p *botgolang.EventPayload) {
 	if user != nil && !user.Registered {
 		err := repositories.ActivateUser(user, p.From.FirstName, p.From.LastName)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 	}
 
@@ -69,11 +69,11 @@ func MessageHandler(p *botgolang.EventPayload) {
 
 		message, err := services.ReportMessage(approveID, userID)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 		err = message.Send()
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 		return
 
@@ -101,7 +101,7 @@ func MessageHandler(p *botgolang.EventPayload) {
 		if commands.UserStates[userID] == nil {
 			err := vkbot.GetBot().NewTextMessage(userID, "Я не понял что ты имел ввиду\nНо если отправишь мне /start, то я расскажу тебе про свои основные команды").Send()
 			if err != nil {
-				log.Println(err)
+				log.Error(err)
 			}
 		}
 

@@ -6,8 +6,8 @@ import (
 	"ghost-approve/internal/notifier"
 	"ghost-approve/pkg/db/redis"
 	botgolang "github.com/mail-ru-im/bot-golang"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,7 +23,6 @@ func NewApp(bot *botgolang.Bot, psql *gorm.DB) *App {
 }
 
 func (a *App) Run() error {
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -45,11 +44,10 @@ func (a *App) Run() error {
 		case taskResult := <-taskCheckChan:
 			notifier.RemoveTask(taskResult)
 		case sig := <-quit:
-			log.Printf("Received signal: %s. Shutting down...", sig)
+			log.Infof("Received signal: %s. Shutting down...", sig)
 			cancel()
 			return nil
 		}
 	}
 
 }
-

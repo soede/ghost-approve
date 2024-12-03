@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"ghost-approve/internal/models"
 	rdb "ghost-approve/pkg/db/redis"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 	"time"
@@ -49,7 +49,7 @@ func CurrentTasks() ([]models.Task, error) {
 
 		approveID, err := strconv.Atoi(parts[1])
 		if err != nil {
-			log.Printf("Ошибка преобразования ID задачи: %v", err)
+			log.Errorf("Ошибка преобразования ID задачи: %v", err)
 			continue
 		}
 		taskList = append(taskList, models.Task{

@@ -6,15 +6,6 @@ import (
 	"ghost-approve/pkg/db/postgres"
 )
 
-func FileByID(id int) (*models.File, error) {
-	var file *models.File
-	err := postgres.GetDB().Raw(`SELECT * FROM files WHERE id = ?`, id).Scan(&file).Error
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
-}
-
 func FileByApprovalID(approveID int) (*models.File, error) {
 	var file *models.File
 	err := postgres.GetDB().Raw(`SELECT * FROM files WHERE approve_id = ? LIMIT 1`, approveID).Scan(&file).Error

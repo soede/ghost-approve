@@ -6,7 +6,7 @@ import (
 	"ghost-approve/internal/services/commands"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -48,7 +48,7 @@ func CallbackHandler(p *botgolang.EventPayload) {
 			err = vkbot.GetBot().NewTextMessage(userID, "Ты не начал подтверждать апрув").Send()
 		}
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 	}
 }

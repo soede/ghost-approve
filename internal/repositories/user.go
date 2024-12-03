@@ -7,7 +7,6 @@ import (
 	"ghost-approve/pkg/botErrors"
 	"ghost-approve/pkg/db/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
 var db *gorm.DB
@@ -60,7 +59,6 @@ func CheckEmailsInDB(emails []string) ([]string, []string, error) {
 	var foundUsers []models.User
 
 	if err := postgres.GetDB().Where("id IN ? AND registered = ?", emails, true).Find(&foundUsers).Error; err != nil {
-		log.Println("SQL Query Error:", err)
 		return nil, nil, err
 	}
 
@@ -86,7 +84,6 @@ func GetOrCreateUsersByID(ids []string) ([]models.User, error) {
 	var users []models.User
 
 	if err := postgres.GetDB().Where("id IN ?", ids).Find(&users).Error; err != nil {
-		log.Println("SQL Query Error:", err)
 		return nil, err
 	}
 

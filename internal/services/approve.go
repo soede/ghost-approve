@@ -14,7 +14,7 @@ import (
 	"ghost-approve/pkg/vkbot"
 	"github.com/lib/pq"
 	botgolang "github.com/mail-ru-im/bot-golang"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"sync"
 	"time"
@@ -95,10 +95,10 @@ func SendApprovalsToParticipants(approval *models.Approval, us *commands.UserSta
 		go func(msgToSend, msgToSend1 *botgolang.Message) {
 			wg.Add(1)
 			if err := msgToSend1.Send(); err != nil {
-				log.Printf("failed to send message: %s", err)
+				log.Errorf("failed to send message: %s", err)
 			}
 			if err := msgToSend.Send(); err != nil {
-				log.Printf("failed to send message: %s", err)
+				log.Errorf("failed to send message: %s", err)
 			}
 			defer wg.Done()
 		}(message, message1)
@@ -154,7 +154,7 @@ func ConfirmApprove(approveID, version int, userID string) error {
 		return err
 	}
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	if !approval.Editable {
@@ -307,10 +307,10 @@ func SendFinish(authorID string, approveID int, text string) {
 	err = rdb.Client().ZRem("approve_notifications", fmt.Sprintf("quarter:%d", approveID))
 
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	if err := vkbot.GetBot().NewTextMessage(authorID, text).Send(); err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 }
 
@@ -318,7 +318,7 @@ func SendFinish(authorID string, approveID int, text string) {
 func SendManageApprovals(userID string) {
 	approvals, err := repositories.ManageApprovals(userID)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return
 	}
 
@@ -326,7 +326,7 @@ func SendManageApprovals(userID string) {
 		err := vkbot.GetBot().NewTextMessage(userID, "У тебя пока что нет созданных актуальных апрувов\n"+
 			"Но ты можешь создать их отправив мне команду /create").Send()
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 		return
 	}
@@ -346,7 +346,7 @@ func SendManageApprovals(userID string) {
 			message.AttachInlineKeyboard(keyboard)
 			//
 			if err := message.Send(); err != nil {
-				log.Println("Ошибка отправки сообщения:", err)
+				log.Errorf("Ошибка отправки сообщения:", err)
 			}
 		}(el)
 	}
@@ -361,11 +361,11 @@ func FetchStats(approveID int) string {
 
 	approved, err := repositories.ApprovedUsersID(approveID)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	approvedLinks := utils.CreateUserLink(approved)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	if len(approvedLinks) != 0 {
@@ -374,7 +374,7 @@ func FetchStats(approveID int) string {
 
 	rejected, err := repositories.RejectedUsersID(approveID)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	rejectedLinks := utils.CreateUserLink(rejected)
 
@@ -385,7 +385,7 @@ func FetchStats(approveID int) string {
 
 	notReacted, err := repositories.GetUsersNotReacted(approveID)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	notReactedLinks := utils.CreateUserLink(notReacted)
 	if len(notReacted) != 0 {
@@ -394,7 +394,7 @@ func FetchStats(approveID int) string {
 
 	notReg, err := repositories.CheckNotRegisteredUsers(approveID)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	if len(notReg) != 0 {
 		text += fmt.Sprintf("Еще не написали мне: %s \n", strings.Join(notReg, ", "))
@@ -402,7 +402,7 @@ func FetchStats(approveID int) string {
 
 	reminds, err := repositories.CountApprovalReminders(approveID)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	text += "🔔Уведомления\n"
@@ -423,7 +423,7 @@ func FetchStats(approveID int) string {
 	text += "Автоматические напоминания отправляются после того, как пройдет половина времени или останется четверть времени"
 
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	return text

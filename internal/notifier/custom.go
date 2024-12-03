@@ -5,7 +5,7 @@ import (
 	"ghost-approve/internal/repositories"
 	"ghost-approve/internal/utils"
 	"ghost-approve/pkg/vkbot"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -13,7 +13,7 @@ func SelectNotificationUsers(userID string, approveID int) {
 	message := vkbot.GetBot().NewTextMessage(userID, "Все участники, которые не откликнулись на апрув, получили напоминание")
 	err := message.Send()
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 }
 
@@ -48,7 +48,7 @@ func CustomRemind(authorID string, users []string, approveID int) error {
 			wg.Add(1)
 			err = vkbot.GetBot().NewTextMessage(userID, text).Send()
 			if err != nil {
-				log.Println(err)
+				log.Error(err)
 			}
 			defer wg.Done()
 		}()
@@ -79,7 +79,7 @@ func NotifyAll(approvalID int, authorID, text string) error {
 		go func() {
 			wg.Add(1)
 			if err := message.Send(); err != nil {
-				log.Printf("failed to send message: %s", err)
+				log.Errorf("failed to send message: %s", err)
 			}
 			defer wg.Done()
 		}()

@@ -7,7 +7,6 @@ import (
 	"ghost-approve/pkg/botErrors"
 	"ghost-approve/pkg/db/postgres"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -72,7 +71,6 @@ func AddUserToApprovedUsers(approveID int, user *models.User) error {
 	var approve models.Approval
 
 	if err := postgres.GetDB().First(&approve, approveID).Error; err != nil {
-
 		return err
 	}
 
@@ -189,7 +187,6 @@ func GetUsersNotReacted(approvalID int) ([]string, error) {
 
 	err := postgres.GetDB().Raw(query, approvalID, approvalID, approvalID).Scan(&notRespondedUsers).Error
 	if err != nil {
-		log.Println("SQL Query Error:", err)
 		return nil, err
 	}
 
@@ -211,7 +208,6 @@ func CheckNotRegisteredUsers(approvalID int) ([]string, error) {
 		Scan(&notRegisteredUsers).Error
 
 	if err != nil {
-		log.Println("SQL Query Error:", err)
 		return nil, err
 	}
 
@@ -227,7 +223,6 @@ func GetApprovalByID(approvalID int) (*models.Approval, error) {
 		First(&approval).Error
 
 	if err != nil {
-		log.Println("Error fetching approval:", err)
 		return nil, err
 	}
 

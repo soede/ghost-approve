@@ -6,7 +6,7 @@ import (
 	"ghost-approve/internal/utils"
 	"ghost-approve/pkg/vkbot"
 	botgolang "github.com/mail-ru-im/bot-golang"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 )
@@ -118,12 +118,15 @@ func CreateCallback(p *botgolang.EventPayload) {
 		if !checkUserStage(userID, commands.ConfirmTime) {
 			return
 		}
-		vkbot.GetBot().NewTextMessage(p.From.ID, "Укажи время, в течение которого должен быть подписан апрув\n"+
+		err := vkbot.GetBot().NewTextMessage(p.From.ID, "Укажи время, в течение которого должен быть подписан апрув\n"+
 			"Используй сокращения: ч — часы, д — дни, н — недели, м - месяцы\n"+
 			"Пример форматов:\n"+
 			"1ч — 1 час\n2д 12ч — 2 дня и 12 часов\n3н — 3 недели\n"+
 			"Еще ты можешь ввести нужную дату в формате 2024/9/3 17:00 \n"+
 			"Важно: введенное время не должно превышать 2 месяцев").Send()
+		if err != nil {
+			log.Error(err)
+		}
 
 		commands.UserStates[p.From.ID].CurrentStage = commands.OtherTime
 
@@ -215,7 +218,7 @@ func CreateCallback(p *botgolang.EventPayload) {
 		}
 		approval, err := services.CheckAndCreateApprove(commands.UserStates[userID])
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 			return
 		}
 		services.SendApprovalsToParticipants(approval, commands.UserStates[userID])
@@ -235,14 +238,13 @@ func CreateCallback(p *botgolang.EventPayload) {
 		delete(commands.UserStates, p.From.ID)
 		message := vkbot.GetBot().NewTextMessage(p.From.ID, "Создание апрува было отменено")
 		if err := message.Send(); err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 
 	case "/create_not_cancel":
 		message := vkbot.GetBot().NewTextMessage(p.From.ID, "Апрув не был отменён")
 		if err := message.Send(); err != nil {
-
-			log.Println(err)
+			log.Error(err)
 		}
 
 	}

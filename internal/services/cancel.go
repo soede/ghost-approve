@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"ghost-approve/internal/repositories"
 	"ghost-approve/pkg/vkbot"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -26,7 +26,7 @@ func CancelMessageToUsers(approveID int, authorID string) error {
 		go func() {
 			wg.Add(1)
 			if err := message.Send(); err != nil {
-				log.Printf("failed to send message: %s", err)
+				log.Errorf("failed to send message: %s", err)
 			}
 			defer wg.Done()
 		}()
@@ -34,4 +34,3 @@ func CancelMessageToUsers(approveID int, authorID string) error {
 	wg.Wait()
 	return err
 }
-
