@@ -20,10 +20,10 @@
     ```plaintext
     DB_HOST=                 # Адрес базы данных
     DB_PORT=                 # Порт базы данных
-    DB_USER=postgres         # Имя пользователя базы данных
+    DB_USER=                 # Имя пользователя базы данных
     DB_PASSWORD=             # Пароль базы данных
-    DB_NAME=postgres         # Имя базы данных
-    SSL_MODE=disable         # Режим SSL
+    DB_NAME=                 # Имя базы данных
+    SSL_MODE=                # Режим SSL
     VK_BOT_TOKEN=            # Токен бота VK
     REDIS_HOST=              # Адрес Redis
     REDIS_PORT=              # Порт Redis
