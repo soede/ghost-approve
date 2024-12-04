@@ -67,9 +67,12 @@ func Received(userID string, approvalID int) {
 	var wg sync.WaitGroup
 	messageChan := make(chan *botgolang.Message, len(approvals))
 
+	var skip int
+
 	for _, approval := range approvals {
 
 		if approval.AuthorID == userID {
+			skip++
 			continue
 		}
 
@@ -134,6 +137,13 @@ func Received(userID string, approvalID int) {
 		}(message)
 	}
 	sendWg.Wait()
+
+	if skip == len(approvals) {
+		err := vkbot.GetBot().NewTextMessage(userID, "У тебя пока что нет полученных апрувов").Send()
+		if err != nil {
+			return
+		}
+	}
 
 }
 
